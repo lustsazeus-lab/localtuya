@@ -201,6 +201,12 @@ class LocaltuyaLight(LocalTuyaEntity, LightEntity):
         if self._config.get(CONF_MUSIC_MODE):
             self._effect_list.append(SCENE_MUSIC)
 
+        # Set _attr_ properties for HA 2026.3+ compatibility (replaces property methods)
+        # These are needed because HA 2026.3 removed support for reading color_temp via property
+        self._attr_color_temp_kelvin = None
+        self._attr_min_color_temp_kelvin = self._min_color_temp_kelvin
+        self._attr_max_color_temp_kelvin = self._max_color_temp_kelvin
+
     @property
     def is_on(self):
         """Check if Tuya light is on."""
@@ -527,6 +533,8 @@ class LocaltuyaLight(LocalTuyaEntity, LightEntity):
 
         if ColorMode.COLOR_TEMP in self.supported_color_modes:
             self._color_temp = self.dps_conf(CONF_COLOR_TEMP)
+            # Update _attr_ for HA 2026.3+ compatibility
+            self._attr_color_temp_kelvin = self.color_temp_kelvin
 
         if self.is_scene_mode and supported & LightEntityFeature.EFFECT:
             if self.dps_conf(CONF_COLOR_MODE) != MODE_SCENE:
